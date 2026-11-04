@@ -1,0 +1,126 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Party Arena</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#101018;color:white;font-family:Arial,sans-serif;text-align:center;padding:20px}
+h1{color:#ff405c;font-size:34px}
+.panel{background:#20202c;padding:20px;border-radius:18px;margin:15px auto;max-width:480px}
+button,input{width:100%;padding:14px;margin:7px 0;border:0;border-radius:12px;font-size:17px}
+button{background:#ff405c;color:white;font-weight:bold}
+input{text-align:center;background:#fff;color:#111}
+.option{background:#343447}
+.small{font-size:13px;color:#bbb}
+#game,#admin{display:none}
+#admin{border:2px solid #ff405c}
+</style>
+</head>
+<body>
+<h1>PARTY ARENA</h1>
+<p>ساحة التحدي والأصدقاء 🎉</p>
+
+<div class="panel" id="home">
+<h2>ابدأ اللعب</h2>
+<input id="player" placeholder="اكتب اسمك">
+<button onclick="createRoom()">إنشاء غرفة</button>
+<input id="roomCode" placeholder="كود الغرفة">
+<button onclick="joinRoom()">دخول غرفة</button>
+<p class="small">نسخة تجريبية محلية</p>
+</div>
+
+<div class="panel" id="game">
+<h2 id="roomTitle"></h2>
+<p id="score">النقاط: 0</p>
+<h3 id="question"></h3>
+<div id="answers"></div>
+<p id="feedback"></p>
+<button onclick="nextQuestion()">السؤال التالي</button>
+<button onclick="showAdmin()">قائمة التحكم ⚙️</button>
+</div>
+
+<div class="panel" id="admin">
+<h2>قائمة التحكم</h2>
+<button onclick="alert('تم تفعيل وضع المضيف محلياً')">Make Host</button>
+<button onclick="kickPlayer()">Kick Player</button>
+<button onclick="chatControl()">Chat Control</button>
+<button onclick="identity()">Identity</button>
+<button onclick="addPlayer()">Add Player</button>
+<button onclick="resetRoom()">Reset Room</button>
+<button onclick="hideAdmin()">إغلاق</button>
+</div>
+
+<script>
+const questions=[
+{q:"ما عاصمة مصر؟",a:["القاهرة","الإسكندرية","أسوان"],c:0},
+{q:"كم عدد أيام الأسبوع؟",a:["خمسة","سبعة","ثمانية"],c:1},
+{q:"ما أكبر كوكب؟",a:["الأرض","المريخ","المشتري"],c:2},
+{q:"كم يساوي 5 × 5؟",a:["20","25","30"],c:1},
+{q:"ما لون الموز الناضج؟",a:["أزرق","أصفر","أحمر"],c:1}
+];
+let index=0,points=0,name="",code="",chatEnabled=true;
+
+function createRoom(){
+name=document.getElementById("player").value.trim()||"Player";
+code=Math.random().toString(36).substring(2,7).toUpperCase();
+startGame();
+}
+function joinRoom(){
+name=document.getElementById("player").value.trim()||"Player";
+code=document.getElementById("roomCode").value.trim()||"DEMO";
+startGame();
+}
+function startGame(){
+document.getElementById("home").style.display="none";
+document.getElementById("game").style.display="block";
+document.getElementById("roomTitle").textContent="الغرفة: "+code+" | "+name;
+index=0;points=0;showQuestion();
+}
+function showQuestion(){
+let q=questions[index];
+document.getElementById("question").textContent=q.q;
+document.getElementById("score").textContent="النقاط: "+points;
+document.getElementById("feedback").textContent="";
+let box=document.getElementById("answers");
+box.innerHTML="";
+q.a.forEach((answer,i)=>{
+let b=document.createElement("button");
+b.className="option";
+b.textContent=answer;
+b.onclick=()=>checkAnswer(i);
+box.appendChild(b);
+});
+}
+function checkAnswer(i){
+if(i===questions[index].c){
+points+=10;
+document.getElementById("feedback").textContent="إجابة صحيحة! +10 🎉";
+}else{
+document.getElementById("feedback").textContent="إجابة خاطئة!";
+}
+document.getElementById("score").textContent="النقاط: "+points;
+}
+function nextQuestion(){
+index++;
+if(index>=questions.length){
+alert("انتهت اللعبة! مجموع نقاطك: "+points);
+index=0;points=0;
+}
+showQuestion();
+}
+function showAdmin(){document.getElementById("admin").style.display="block"}
+function hideAdmin(){document.getElementById("admin").style.display="none"}
+function kickPlayer(){alert("لا يوجد لاعبون متصلون في النسخة المحلية")}
+function chatControl(){
+chatEnabled=!chatEnabled;
+alert(chatEnabled?"تم السماح بالدردشة":"تم إيقاف الدردشة");
+}
+function identity(){alert("اسم اللاعب: "+name)}
+function addPlayer(){alert("إضافة اللاعبين أونلاين تحتاج سيرفر")}
+function resetRoom(){index=0;points=0;showQuestion();hideAdmin()}
+</script>
+</body>
+</html>
